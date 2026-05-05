@@ -11,16 +11,39 @@ from auth import check_password
 WEBHOOK_URL_PHOTO = "AKfycbzr7jxOIgCsBoOCbOtZMgV41SY3v2yZEbi_BaeQvdZj0-DoyztsXKSFqvCpMlwjaR7S"
 WEBHOOK_URL_DATA = "AKfycbzr7jxOIgCsBoOCbOtZMgV41SY3v2yZEbi_BaeQvdZj0-DoyztsXKSFqvCpMlwjaR7S"
 
+# --- GOOGLE SHEETS ---
+VESSEL_SHEET_ID = st.secrets["VESSEL_SHEET_ID"]
+VESSEL_SHEET_NAME = "Vessel Name"
+VESSEL_CSV_URL = (
+    f"https://docs.google.com/spreadsheets/d/{VESSEL_SHEET_ID}/gviz/tq?tqx=out:csv&sheet={VESSEL_SHEET_NAME}"
+)
+
 # --- Hardcoded Lists ---
 pic_list = [
     "Rikie Dwi Permana", "Idha Akhmad Sucahyo", "Rian Dinata",
     "Harimurti Krisandki", "Muchamad Mustofa", "Yogie Arie Wibowo"
 ]
 db_list = ["DMI", "PBN", "PKS", "PMT", "PSS", "PSM", "PST"]
-uom_item_list = ["Pcs", "Box", "Pack", "Set", "Unit", "Pallet"]
-uom_qty_list = ["Kg", "Ton", "Liter", "Meter", "CBM"]
 condition_list = ["Good", "Damaged", "Incomplete", "Needs Review"]
-vessel_list = ["Vessel Alpha", "Vessel Beta", "Vessel Gamma", "Vessel Delta"]
+
+    # --- Load Vessel Data ---
+    df_vessel = load_csv(VESSEL_CSV_URL)
+    vessels_for_db = (
+        df_vessel[df_vessel["DB"].astype(str).str.strip() == selected_db]
+        if not df_vessel.empty
+        else pd.DataFrame()
+    )
+    vessel_options = (
+        sorted(vessels_for_db["Vessel Name"].dropna().astype(str).unique().tolist())
+        if "Vessel Name" in vessels_for_db.columns
+        else []
+    )
+
+    if not vessel_options:
+        vessel_name = st.text_input("Vessel Name (no entry in sheet, type manually):")
+    else:
+        vessel_name = st.selectbox("Vessel Name:", vessel_options)
+
 
 # --- Upload / compression policy ---
 MAX_BYTES_PER_FILE = 8 * 1024 * 1024   # 8 MB raw file allowed (before compression check)
@@ -158,13 +181,10 @@ if check_password():
     col3, col4 = st.columns(2)
     with col3:
         jumlah_item = st.number_input("Number of Items", min_value=0, step=1, value=0)
-        uom_item = st.selectbox("UoM (Items):", uom_item_list)
         nomor_po = st.text_input("Nomor PO")
     with col4:
         jumlah_qty = st.number_input("Quantity", min_value=0.0, step=0.1, value=0.0)
-        uom_qty = st.selectbox("UoM (Quantity):", uom_qty_list)
         selected_condition = st.selectbox("Condition:", condition_list)
-        selected_vessel = st.selectbox("Vessel ID:", vessel_list)
 
     st.markdown("---")
 
@@ -233,11 +253,9 @@ if check_password():
             "PIC": selected_pic,
             "database": selected_db,
             "jumlah_item": jumlah_item,
-            "uom_item": uom_item,
             "jumlah_qty": float(jumlah_qty),
-            "uom_qty": uom_qty,
             "condition": selected_condition,
-            "vessel_id": selected_vessel,
+            "vessel_id": vessel_name,
             "nomor_po": nomor_po,
             "do_folder_link": do_url,
             "item_folder_link": item_url
