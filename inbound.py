@@ -267,6 +267,7 @@ if check_password():
             "jumlah_item": jumlah_item,
             "jumlah_qty": float(jumlah_qty),
             "condition": selected_condition,
+            "nama_vendor": nama_vendor,
             "vessel_id": vessel_name,
             "nomor_po": nomor_po,
             "do_folder_link": do_url,
