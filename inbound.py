@@ -27,22 +27,22 @@ db_list = ["DMI", "PBN", "PKS", "PMT", "PSS", "PSM", "PST"]
 condition_list = ["Good", "Damaged", "Incomplete", "Needs Review"]
 
     # --- Load Vessel Data ---
-    df_vessel = load_csv(VESSEL_CSV_URL)
-    vessels_for_db = (
-        df_vessel[df_vessel["DB"].astype(str).str.strip() == selected_db]
-        if not df_vessel.empty
-        else pd.DataFrame()
-    )
-    vessel_options = (
-        sorted(vessels_for_db["Vessel Name"].dropna().astype(str).unique().tolist())
-        if "Vessel Name" in vessels_for_db.columns
-        else []
-    )
+df_vessel = load_csv(VESSEL_CSV_URL)
+vessels_for_db = (
+df_vessel[df_vessel["DB"].astype(str).str.strip() == selected_db]
+if not df_vessel.empty
+else pd.DataFrame()
+)
+vessel_options = (
+sorted(vessels_for_db["Vessel Name"].dropna().astype(str).unique().tolist())
+if "Vessel Name" in vessels_for_db.columns
+else []
+)
 
-    if not vessel_options:
-        vessel_name = st.text_input("Vessel Name (no entry in sheet, type manually):")
-    else:
-        vessel_name = st.selectbox("Vessel Name:", vessel_options)
+if not vessel_options:
+    vessel_name = st.text_input("Vessel Name (no entry in sheet, type manually):")
+else:
+    vessel_name = st.selectbox("Vessel Name:", vessel_options)
 
 
 # --- Upload / compression policy ---
