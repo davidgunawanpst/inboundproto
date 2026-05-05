@@ -188,8 +188,9 @@ if check_password():
     with col3:
         jumlah_item = st.number_input("Number of Items", min_value=0, step=1, value=0)
         nomor_po = st.text_input("Nomor PO")
+        nama_vendor = st.text_input("Nama Vendor")
     with col4:
-        jumlah_qty = st.number_input("Quantity", min_value=0.0, step=0.1, value=0.0)
+        jumlah_qty = st.number_input("Quantity", min_value=0, step=1, value=0)
         selected_condition = st.selectbox("Condition:", condition_list)
         
         # Display Vessel selectbox or text input properly
