@@ -12,7 +12,7 @@ WEBHOOK_URL_PHOTO = "AKfycbzr7jxOIgCsBoOCbOtZMgV41SY3v2yZEbi_BaeQvdZj0-DoyztsXKS
 WEBHOOK_URL_DATA = "AKfycbzr7jxOIgCsBoOCbOtZMgV41SY3v2yZEbi_BaeQvdZj0-DoyztsXKSFqvCpMlwjaR7S"
 
 # --- GOOGLE SHEETS ---
-VESSEL_SHEET_ID = st.secrets["VESSEL_SHEET_ID"]
+VESSEL_SHEET_ID = "18rlYmNpArAvEZrD3yyy7iAFDpHvFqEvN7pvztb1VcVM"
 VESSEL_SHEET_NAME = "Vessel Name"
 VESSEL_CSV_URL = (
     f"https://docs.google.com/spreadsheets/d/{VESSEL_SHEET_ID}/gviz/tq?tqx=out:csv&sheet={VESSEL_SHEET_NAME}"
