@@ -139,6 +139,11 @@ def upload_photos_to_drive(uploaded_files, folder_name, progress_text):
     return True, drive_folder_url, []
 
 
+# === Streamlit UI ===
+if check_password():
+    st.set_page_config(page_title="Incoming Data Log", layout="wide")
+    st.title("📥 Incoming Data Log")
+
     # --- Basic Info ---
     col1, col2 = st.columns(2)
     with col1:
