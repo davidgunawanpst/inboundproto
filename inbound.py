@@ -3,10 +3,11 @@ import pandas as pd
 import requests
 from datetime import datetime
 from zoneinfo import ZoneInfo
-from io import BytesIO
+from io import StringIO, BytesIO
 import base64
 from PIL import Image
 from auth import check_password
+
 # --- WEBHOOK URLs (Placeholders) ---
 WEBHOOK_URL_PHOTO = "AKfycbzr7jxOIgCsBoOCbOtZMgV41SY3v2yZEbi_BaeQvdZj0-DoyztsXKSFqvCpMlwjaR7S"
 WEBHOOK_URL_DATA = "AKfycbzr7jxOIgCsBoOCbOtZMgV41SY3v2yZEbi_BaeQvdZj0-DoyztsXKSFqvCpMlwjaR7S"
@@ -14,9 +15,7 @@ WEBHOOK_URL_DATA = "AKfycbzr7jxOIgCsBoOCbOtZMgV41SY3v2yZEbi_BaeQvdZj0-DoyztsXKSF
 # --- GOOGLE SHEETS ---
 VESSEL_SHEET_ID = "18rlYmNpArAvEZrD3yyy7iAFDpHvFqEvN7pvztb1VcVM"
 VESSEL_SHEET_NAME = "Vessel Name"
-VESSEL_CSV_URL = (
-    f"https://docs.google.com/spreadsheets/d/{VESSEL_SHEET_ID}/gviz/tq?tqx=out:csv&sheet={VESSEL_SHEET_NAME}"
-)
+VESSEL_CSV_URL = f"https://docs.google.com/spreadsheets/d/{VESSEL_SHEET_ID}/gviz/tq?tqx=out:csv&sheet={VESSEL_SHEET_NAME}"
 
 # --- Hardcoded Lists ---
 pic_list = [
@@ -25,25 +24,6 @@ pic_list = [
 ]
 db_list = ["DMI", "PBN", "PKS", "PMT", "PSS", "PSM", "PST"]
 condition_list = ["Good", "Damaged", "Incomplete", "Needs Review"]
-
-    # --- Load Vessel Data ---
-df_vessel = load_csv(VESSEL_CSV_URL)
-vessels_for_db = (
-df_vessel[df_vessel["DB"].astype(str).str.strip() == selected_db]
-if not df_vessel.empty
-else pd.DataFrame()
-)
-vessel_options = (
-sorted(vessels_for_db["Vessel Name"].dropna().astype(str).unique().tolist())
-if "Vessel Name" in vessels_for_db.columns
-else []
-)
-
-if not vessel_options:
-    vessel_name = st.text_input("Vessel Name (no entry in sheet, type manually):")
-else:
-    vessel_name = st.selectbox("Vessel Name:", vessel_options)
-
 
 # --- Upload / compression policy ---
 MAX_BYTES_PER_FILE = 8 * 1024 * 1024   # 8 MB raw file allowed (before compression check)
@@ -54,6 +34,18 @@ UPLOAD_RETRIES = 3                     # number of attempts per upload
 
 
 # === Utility functions ===
+
+@st.cache_data(ttl=600) # Cache the CSV load so it doesn't slow down the app on every interaction
+def load_csv(url: str) -> pd.DataFrame:
+    """Load CSV data from a URL into a Pandas DataFrame."""
+    try:
+        resp = requests.get(url, timeout=15)
+        resp.raise_for_status()
+        return pd.read_csv(StringIO(resp.text))
+    except Exception as e:
+        st.error(f"Failed to load Vessel data: {e}")
+        return pd.DataFrame()
+
 
 def compress_image_bytes(file_bytes: bytes, max_width=COMPRESS_MAX_WIDTH, quality=COMPRESS_QUALITY) -> bytes:
     """Compress / resize image bytes and return new JPEG bytes."""
@@ -106,7 +98,7 @@ def upload_photos_to_drive(uploaded_files, folder_name, progress_text):
     processed_images = []
     errors = []
 
-    # 1. Process & Compress (No total size limit check)
+    # 1. Process & Compress
     for file in uploaded_files:
         try:
             raw_bytes = file.read()
@@ -147,7 +139,7 @@ def upload_photos_to_drive(uploaded_files, folder_name, progress_text):
             my_bar.empty()
             return False, "UPLOAD_FAILED", errors
 
-        # Robust Link Extraction: Grab the URL if we haven't found one yet
+        # Robust Link Extraction
         try:
             j = resp.json()
             if isinstance(j, dict) and drive_folder_url == "UPLOAD_FAILED":
@@ -164,7 +156,7 @@ def upload_photos_to_drive(uploaded_files, folder_name, progress_text):
 
 # === Streamlit UI ===
 if check_password():
-    st.set_page_config(page_title="Incoming Data Log", layout="wide")
+    st.set_page_config(page_title="Incoming Data Log", layout="wide") # Must be the first Streamlit command!
     st.title("📥 Incoming Data Log")
 
     # --- Basic Info ---
@@ -176,8 +168,22 @@ if check_password():
 
     st.markdown("---")
 
-    # --- Item & Qty Details ---
+    # --- Item, Qty & Vessel Details ---
     st.subheader("Item Details")
+    
+    # Load and filter Vessel Data based on selected Database
+    df_vessel = load_csv(VESSEL_CSV_URL)
+    vessels_for_db = (
+        df_vessel[df_vessel["DB"].astype(str).str.strip() == selected_db]
+        if not df_vessel.empty and selected_db
+        else pd.DataFrame()
+    )
+    vessel_options = (
+        sorted(vessels_for_db["Vessel Name"].dropna().astype(str).unique().tolist())
+        if "Vessel Name" in vessels_for_db.columns
+        else []
+    )
+
     col3, col4 = st.columns(2)
     with col3:
         jumlah_item = st.number_input("Number of Items", min_value=0, step=1, value=0)
@@ -185,6 +191,12 @@ if check_password():
     with col4:
         jumlah_qty = st.number_input("Quantity", min_value=0.0, step=0.1, value=0.0)
         selected_condition = st.selectbox("Condition:", condition_list)
+        
+        # Display Vessel selectbox or text input properly
+        if not vessel_options:
+            vessel_name = st.text_input("Vessel Name (no entry in sheet, type manually):")
+        else:
+            vessel_name = st.selectbox("Vessel Name:", vessel_options)
 
     st.markdown("---")
 
@@ -220,9 +232,8 @@ if check_password():
 
         # Prepare folder names and timestamp
         timestamp = datetime.now(ZoneInfo("Asia/Jakarta")).strftime("%d/%m/%Y")
-        safe_po = "".join([c for c in nomor_po if c.isalnum() or c in ("-", "_")]) # Sanitize PO for folder name
+        safe_po = "".join([c for c in nomor_po if c.isalnum() or c in ("-", "_")])
         
-        # Creating two distinct folder names for the two types of uploads
         do_folder_name = f"Inbound_DO_{selected_db}_{safe_po}"
         item_folder_name = f"Inbound_Items_{selected_db}_{safe_po}"
 
@@ -265,8 +276,6 @@ if check_password():
             data_response = requests.post(WEBHOOK_URL_DATA, json=data_payload, timeout=30)
             if data_response.status_code == 200:
                 st.success("🎉 Submission completed successfully!")
-                
-                # Display links to the user
                 st.markdown(f"**DO Folder Link:** [📂 View Files]({do_url})")
                 st.markdown(f"**Items Folder Link:** [📂 View Files]({item_url})")
             else:
