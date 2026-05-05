@@ -6,7 +6,7 @@ from zoneinfo import ZoneInfo
 from io import BytesIO
 import base64
 from PIL import Image
-
+from auth import check_password
 # --- WEBHOOK URLs (Placeholders) ---
 WEBHOOK_URL_PHOTO = "AKfycbzr7jxOIgCsBoOCbOtZMgV41SY3v2yZEbi_BaeQvdZj0-DoyztsXKSFqvCpMlwjaR7S"
 WEBHOOK_URL_DATA = "AKfycbzr7jxOIgCsBoOCbOtZMgV41SY3v2yZEbi_BaeQvdZj0-DoyztsXKSFqvCpMlwjaR7S"
