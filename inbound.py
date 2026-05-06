@@ -19,8 +19,10 @@ VESSEL_CSV_URL = f"https://docs.google.com/spreadsheets/d/{VESSEL_SHEET_ID}/gviz
 
 # --- Hardcoded Lists ---
 pic_list = [
-    "Rikie Dwi Permana", "Idha Akhmad Sucahyo", "Rian Dinata",
-    "Harimurti Krisandki", "Muchamad Mustofa", "Yogie Arie Wibowo"
+    "Ananta Aditya",
+    "Muhamad Nur Budi",
+    "Deni Kristianto", 
+    "Abdul Hadi"
 ]
 db_list = ["DMI", "PBN", "PKS", "PMT", "PSS", "PSM", "PST"]
 condition_list = ["Good", "Damaged", "Incomplete", "Needs Review"]
