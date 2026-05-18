@@ -22,7 +22,13 @@ pic_list = [
     "Ananta Aditya",
     "Muhamad Nur Budi",
     "Deni Kristianto", 
-    "Abdul Hadi"
+    "Abdul Hadi",
+    "Ali Yusni",
+    "Irawansyah",
+    "Ronal",
+    "Jordan",
+    "Miranda Puji",
+    "Azis Prasetya"
 ]
 db_list = ["DMI", "PBN", "PKS", "PMT", "PSS", "PSM", "PST"]
 condition_list = ["Good", "Damaged", "Incomplete", "Needs Review"]
