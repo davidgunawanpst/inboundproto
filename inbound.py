@@ -8,9 +8,9 @@ import base64
 from PIL import Image
 from auth import check_password
 
-# --- WEBHOOK URLs (Placeholders) ---
-WEBHOOK_URL_PHOTO = "https://script.google.com/macros/s/AKfycbzoPeDV_lWeA0lOcJRzx2Ip6-vgoiBWpZPEGfnoPE4qSyuqpWUw51oLMLEMITpMA5Hk/exec"
-WEBHOOK_URL_DATA = "https://script.google.com/macros/s/AKfycbzoPeDV_lWeA0lOcJRzx2Ip6-vgoiBWpZPEGfnoPE4qSyuqpWUw51oLMLEMITpMA5Hk/exec"
+# --- WEBHOOK URLs ---
+WEBHOOK_URL_PHOTO = "https://script.google.com/macros/s/AKfycbx_iDTXWOfy0k1xBgxWF7MMqV1h4_wyGiXidDQj-qI8S_GQXTKfiFtwMK3tk10hfWR6/exec
+WEBHOOK_URL_DATA = "https://script.google.com/macros/s/AKfycbx_iDTXWOfy0k1xBgxWF7MMqV1h4_wyGiXidDQj-qI8S_GQXTKfiFtwMK3tk10hfWR6/exec"
 
 # --- GOOGLE SHEETS ---
 VESSEL_SHEET_ID = "18rlYmNpArAvEZrD3yyy7iAFDpHvFqEvN7pvztb1VcVM"
