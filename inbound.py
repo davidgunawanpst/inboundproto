@@ -9,7 +9,7 @@ from PIL import Image
 from auth import check_password
 
 # --- WEBHOOK URLs ---
-WEBHOOK_URL_PHOTO = "https://script.google.com/macros/s/AKfycbx_iDTXWOfy0k1xBgxWF7MMqV1h4_wyGiXidDQj-qI8S_GQXTKfiFtwMK3tk10hfWR6/exec
+WEBHOOK_URL_PHOTO = "https://script.google.com/macros/s/AKfycbx_iDTXWOfy0k1xBgxWF7MMqV1h4_wyGiXidDQj-qI8S_GQXTKfiFtwMK3tk10hfWR6/exec"
 WEBHOOK_URL_DATA = "https://script.google.com/macros/s/AKfycbx_iDTXWOfy0k1xBgxWF7MMqV1h4_wyGiXidDQj-qI8S_GQXTKfiFtwMK3tk10hfWR6/exec"
 
 # --- GOOGLE SHEETS ---
